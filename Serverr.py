@@ -3,7 +3,7 @@ from chatbot import get_response, get_response2
 
 
 class ChatServer(WebSocket):
-
+    
     def handleMessage(self):
         # echo message back to client
         message = self.data
@@ -11,6 +11,7 @@ class ChatServer(WebSocket):
 
         response = get_response(message)
         a = get_response2(message)
+
         self.sendMessage(response)
         if a != "":
             self.sendMessage(a)
@@ -20,6 +21,17 @@ class ChatServer(WebSocket):
 
     def handleConnected(self):
         print(self.address, 'connected')
+        greeting_messages = [
+            "Hi, I am Rapid!",
+            "Welcome to SSFB chat server!",
+            "How may I help you?"
+        ]
+
+        for message in greeting_messages:
+            self.sendMessage(message)
+            
+
+
 
     def handleClose(self):
         print(self.address, 'closed')
