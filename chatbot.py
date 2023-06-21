@@ -1,22 +1,15 @@
-from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
-import pandas as pd
-
-import os
-from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split as tts
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.preprocessing import LabelEncoder as LE
-from sklearn.metrics.pairwise import cosine_similarity
-
 import nltk
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.model_selection import train_test_split as tts
+from sklearn.preprocessing import LabelEncoder as LE
+from sklearn.svm import SVC
+
 nltk.download('stopwords')
 nltk.download('punkt')
 
-from nltk.stem.lancaster import LancasterStemmer
 from nltk.corpus import stopwords
-
-import datetime
 
 stop_words = set(stopwords.words('english'))
 #print(stop_words)
@@ -41,7 +34,7 @@ le = LE()
 
 tfv = TfidfVectorizer(min_df=1, stop_words='english')
 
-data = pd.read_csv("C:\\Users\\DELL\\Desktop\\Rapid\\BankFAQs.csv")
+data = pd.read_csv("C:\\Users\\DELL\\Desktop\\SSFB bot\\BankFAQs.csv")
 
 questions = data['Question'].values
 
@@ -121,7 +114,7 @@ def get_response(usrText):
 
         if usrText.lower() in a:
 
-            return ("Hi, I'm Rapid!\U0001F60A")
+            return ("Hi \U0001F60A")
 
 
         if usrText.lower() in c:
@@ -146,8 +139,8 @@ def get_response2(usr):
     if usr.lower() == "bye":
         return "Thanks for having a conversation! \U0001F60E"
 
+    GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo"]
 
-    GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey","hii","hiii","hiiiii","yo","Hey there" , "Namaste"]
     a = [x.lower() for x in GREETING_INPUTS]
     
 
@@ -177,11 +170,10 @@ def get_response2(usr):
 
     b = [questionset.index[ind]]
 
-    if usr.lower() in a:
-        return ("You can ask me questions related to Shivalik Small Finance Bank")
 
-    # if usr.lower() in b:
-    #     return("My name is Rapid , and I was developed by humans to queries related to Shivalik Small Finance Bank. Thanks For Asking \U0001F600")
+
+    if usr.lower() in a:
+        return ""
     if usr.lower() in c:
         return " Cool! \U0001f604"
 
