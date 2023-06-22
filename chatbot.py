@@ -12,21 +12,10 @@ nltk.download('punkt')
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
-#print(stop_words)
 
 def cleanup(sentence):
-
-
-
-
     word_tok = nltk.word_tokenize(sentence)
     stemmed_words = [w for w in word_tok if not w in stop_words]
-    #print(stemmed_words)
-
-    #stemmed_words = [stemmer.stem(w) for w in word_tok]
-
-
-
     return ' '.join(stemmed_words)
 
 
@@ -43,8 +32,6 @@ X = []
 for question in questions:
     X.append(cleanup(question))
 
-
-
 tfv.fit(X)
 le.fit(data['Class'])
 
@@ -54,148 +41,108 @@ y = le.transform(data['Class'])
 
 trainx, testx, trainy, testy = tts(X, y, test_size=.3, random_state=42)
 
-
 model = SVC(kernel='linear')
 model.fit(trainx, trainy)
 
-
-class_=le.inverse_transform(model.predict(X))
-
-#print("SVC:", model.score(testx, testy))
-
-
-
-
+class_ = le.inverse_transform(model.predict(X))
 
 def get_response(usrText):
-
-
     while True:
-
-
         if usrText.lower() == "bye":
             return "Bye"
 
-
-
-        GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey","hiii","hii","yo"]
-
+        GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo"]
         a = [x.lower() for x in GREETING_INPUTS]
+        UNSATISFIED_INPUTS = ["no", "wrong", "not", "unacceptable" , "no use" , "not this" , "something else" , "foolish" , "stupid" , "you are stupid" , "this is not what i wanted" , "no this is wrong"]
+        q=[x.lower() for x in UNSATISFIED_INPUTS]
 
-        sd=["Thanks","Welcome"]
-
+        sd = ["Thanks", "Welcome"]
         d = [x.lower() for x in sd]
 
-
-        am=["OK"]
-
+        am = ["OK"]
         c = [x.lower() for x in am]
-
-       # ty = ["getting"]
-       # r = [x.lower() for x in ty]
-
-
 
         t_usr = tfv.transform([cleanup(usrText.strip().lower())])
         class_ = le.inverse_transform(model.predict(t_usr))
-
         questionset = data[data['Class'].values == class_]
 
         cos_sims = []
         for question in questionset['Question']:
             sims = cosine_similarity(tfv.transform([question]), t_usr)
-
             cos_sims.append(sims)
 
         ind = cos_sims.index(max(cos_sims))
+        max_similarity = max(cos_sims)
 
-        b = [questionset.index[ind]]
-
+        similarity_threshold = 0.4  # Adjust the threshold as per your requirement
 
         if usrText.lower() in a:
-
-            return ("Hi \U0001F60A")
-
-
+            return "Hi \U0001F60A"
+        if usrText.lower() in q:
+            return "Sorry to hear that.\U0001F615 "
         if usrText.lower() in c:
-            return "Ok...Alright!\U0001F64C"
-
+            return "Ok...Alright! \U0001F64C"
         if usrText.lower() in d:
-            return ("My pleasure! \U0001F607")
+            return "My pleasure! \U0001F607"
 
-
-
-        if max(cos_sims) > [[0.]]:
-            a = data['Answer'][questionset.index[ind]]+"   "
+        if max_similarity >= similarity_threshold:
+            a = data['Answer'][questionset.index[ind]] + "   "
             return a
-
-
-        elif max(cos_sims)==[[0.]]:
-           return "sorry! \U0001F605"
-
-
+        elif max_similarity < similarity_threshold:
+            if "how are you" in usrText.lower():
+                return "I'm an AI language model, so I don't have feelings,but thanks for asking!"
+            elif "what are you doing" in usrText.lower():
+                return "I'm here to assist you with any questions you have."
+            else:
+                return "Sorry, I couldn't find a matching response. \U0001F615"
 
 def get_response2(usr):
     if usr.lower() == "bye":
         return "Thanks for having a conversation! \U0001F60E"
 
     GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo"]
-
     a = [x.lower() for x in GREETING_INPUTS]
-    
 
+    UNSATISFIED_INPUTS = ["no", "wrong", "not", "unacceptable", "no use", "not this", "something else", "foolish",
+                          "stupid", "you are stupid", "this is not what i wanted", "no this is wrong"]
+    q = [x.lower() for x in UNSATISFIED_INPUTS]
 
     sd = ["Thanks", "Welcome"]
-
     d = [x.lower() for x in sd]
 
     am = ["OK"]
-
     c = [x.lower() for x in am]
-
-
 
     t_usr = tfv.transform([cleanup(usr.strip().lower())])
     class_ = le.inverse_transform(model.predict(t_usr))
-
     questionset = data[data['Class'].values == class_]
 
     cos_sims = []
     for question in questionset['Question']:
         sims = cosine_similarity(tfv.transform([question]), t_usr)
-
         cos_sims.append(sims)
 
     ind = cos_sims.index(max(cos_sims))
+    max_similarity = max(cos_sims)
 
-    b = [questionset.index[ind]]
-
-
+    similarity_threshold = 0.4  # Adjust the threshold as per your requirement
 
     if usr.lower() in a:
         return ""
+    if usr.lower() in q:
+        return "Please contact SSFB customer care for support 1800 202 5333"
     if usr.lower() in c:
-        return " Cool! \U0001f604"
-
+        return "Cool! \U0001F604"
     if usr.lower() in d:
-        return ("\U0001F44D")
+        return "\U0001F44D"
+
+    if max_similarity < similarity_threshold:
+        if "how are you" in usr.lower():
+            return ""
+        elif "what are you doing" in usr.lower():
+            return "How can I help you?"
+        else:
+            return "I'm not able to solve this question at the moment. You can call customer support at 1800 202 5333 \U0001F615"
 
 
-
-
-    if max(cos_sims) == [[0.]]:
-        return "I'm not able to solve this question at this moment. You can call to customer support 1800 202 5333 \U0001F615"
-
-    if max(cos_sims) > [[0.]]:
-
-       # inds = get_max5(cos_sims)
-       #print(inds)
-
-        #b = "(1)" + data['Question'][questionset.index[0]]
-        #c = "(2)" + data['Question'][questionset.index[1]]
-        #d = "(3)" + data['Question'][questionset.index[2]]
-        #e = "(4)" + data['Question'][questionset.index[3]]
-        #f = "(5)" + data['Question'][questionset.index[4]]
-
-        return ""
-
+    return ""
