@@ -6,45 +6,46 @@ engine = pyttsx3.init()
 
 
 class ChatServer(WebSocket):
+    current_question = None
+    has_greeted = False
 
     def handleMessage(self):
-
-        # echo message back to client
         message = self.data
-        # message1=self.data
-        engine.setProperty('rate', 160)
-        # engine.say(message)
-        # engine.runAndWait()
+        #engine.setProperty('rate', 160)
 
-        response = get_response(message)
-        a = get_response2(message)
+        if self.current_question is None:
+            # No current question, process the user's message
+            response = get_response(message)
+
+            a = get_response2(message)
+        elif self.current_question is not None:
+            # User clicked on a suggested question, use it as the next input
+            response = get_response(self.current_question)
+            a = get_response2(self.current_question)
+
+            self.current_question = None
 
         self.sendMessage(response)
         if a != "":
-            self.sendMessage(a)
-        engine.say(response)
-        engine.runAndWait()
-        if a != "":
-            engine.say(a)
-            engine.runAndWait()
-
-        # self.sendMessage(a)
-
+            self.sendMessage(" {}".format(a))
+        # engine.say(response)
+        # engine.runAndWait()
     def handleConnected(self):
         print(self.address, 'connected')
 
-        greeting_messages = [
-            "Hi, I am Rapid!",
-            "Welcome to SSFB chat server!",
-            "How may I help you?"
-        ]
+        if not self.has_greeted:
+            greeting_messages = [
+                "Hi, I am Rapid!",
+                "Welcome to SSFB chat server!",
+                "How may I help you?"
+            ]
 
-        for message in greeting_messages:
-            self.sendMessage(message)
+            for message in greeting_messages:
+                self.sendMessage(message)
 
-        for message in greeting_messages:
-            engine.say(message)
-            engine.runAndWait()
+            self.has_greeted = True
+            # engine.say(greeting_messages)
+            # engine.runAndWait()
 
     def handleClose(self):
         print(self.address, 'closed')
