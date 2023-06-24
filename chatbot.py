@@ -24,7 +24,7 @@ le = LE()
 
 tfv = TfidfVectorizer(min_df=1, stop_words='english')
 
-data = pd.read_csv("C:\\Users\\DELL\\Desktop\\SSFB bot\\BankFAQs.csv")
+data = pd.read_csv("C:\\Users\\DELL\\Desktop\\SSFB bot\\BankFAQs_new - BankFAQs_new.csv.csv")
 
 questions = data['Question'].values
 
@@ -50,21 +50,39 @@ class_ = le.inverse_transform(model.predict(X))
 # Initialize the TTS engine
 engine = pyttsx3.init()
 
-def get_response(usrText):
-    # engine.say(usrText)
-    # engine.runAndWait()
-    while True:
-        if usrText.lower() == "bye":
-            return "Bye"
+def get_max5(arr):
+    ixarr = []
+    for ix, el in enumerate(arr):
+        ixarr.append((el, ix))
 
-        GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo"]
+
+    ixarr.sort()
+
+    ixs = []
+    for i in ixarr[-5:]:
+
+        ixs.append(i[1])
+
+    return ixs[::-1]
+
+
+def get_response(usrText):
+
+    # while True:
+
+
+        GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo" , "hi!" , "hii!"]
         a = [x.lower() for x in GREETING_INPUTS]
         UNSATISFIED_INPUTS = ["no", "wrong", "not", "unacceptable" , "no use" , "not this" , "something else" , "foolish" , "stupid" , "you are stupid" , "this is not what i wanted" , "no this is wrong"]
         q=[x.lower() for x in UNSATISFIED_INPUTS]
-
+        TERMINATING_INPUTS = ["bye" , "goodbye" , "tata" , "see ya" , "see you"]
+        ti= [x.lower() for x in TERMINATING_INPUTS]
+        ABOUT_YOU = ["how are you?" , "how's you?", "how are you" , "How's you" , "how are u?" , "How's u" ]
+        au=[x.lower() for x in ABOUT_YOU]
+        WHAT_YOU = ["What are you doing?" , "What are u doing?" , "What are you doing" , "What are u doing" ]
+        wu=[x.lower() for x in WHAT_YOU]
         sd = ["Thanks", "Welcome"]
         d = [x.lower() for x in sd]
-
         am = ["OK"]
         c = [x.lower() for x in am]
 
@@ -83,73 +101,44 @@ def get_response(usrText):
         similarity_threshold = 0.4  # Adjust the threshold as per your requirement
 
         if usrText.lower() in a:
-            # Speak the input string
-            # engine.say(a)
-            # engine.runAndWait()
+
             return "Hi \U0001F60A"
 
         if usrText.lower() in q:
-            # Speak the input string
-            # engine.say(usrText)
-            # engine.runAndWait()
-            return "Sorry to hear that.\U0001F615 "
+
+            return "Sorry to hear that \U0001F615.\n Please try asking something else "
 
         if usrText.lower() in c:
-            # Speak the input string
-            # engine.say(usrText)
-            # engine.runAndWait()
+
             return "Ok...Alright! \U0001F64C"
 
         if usrText.lower() in d:
-            # Speak the input string
-            # engine.say(usrText)
-            # engine.runAndWait()
+
             return "My pleasure! \U0001F607"
 
+
+        if usrText.lower() in ti:
+            return "Bye"
+
+
+        if usrText.lower() in au:
+            return "I'm an AI language model, so I don't have feelings,but thanks for asking!"
+
+
+        if usrText.lower() in wu:
+            return "I'm here to assist you with any questions you have regarding banking & SSFB.\n How may I help you?"
+
         if max_similarity >= similarity_threshold:
-            a = data['Answer'][questionset.index[ind]] + "   "
-            # Speak the output string
-            # engine.say(a)
-            # engine.runAndWait()
-            return a
+            x = data['Answer'][questionset.index[ind]] + "   "
+            return x
 
 
         elif max_similarity < similarity_threshold:
-            if "how are you" in usrText.lower():
-                # Speak the input string
-                # engine.say(usrText)
-                # engine.runAndWait()
-                return "I'm an AI language model, so I don't have feelings,but thanks for asking!"
-            elif "what are you doing" in usrText.lower():
-                # Speak the input string
-                # engine.say(usrText)
-                # engine.runAndWait()
-                return "I'm here to assist you with any questions you have regarding SSFB."
-            else:
-                # Speak the input string
-                # engine.say(usrText)
-                # engine.runAndWait()
-                return "Sorry, I couldn't find a matching response. \U0001F615"
+
+            return "Sorry, I couldn't find a matching response \U0001F615 .\nPlease contact SSFB customer care for support 1800 202 5333 "
 
 def get_response2(usr):
-    if usr.lower() == "bye":
-        # Speak the input string
-        engine.say(usr)
-        engine.runAndWait()
-        return "Thanks for having a conversation! \U0001F60E"
 
-    GREETING_INPUTS = ["hello", "hi", "greetings", "sup", "what's up", "hey", "hiii", "hii", "yo"]
-    a = [x.lower() for x in GREETING_INPUTS]
-
-    UNSATISFIED_INPUTS = ["no", "wrong", "not", "unacceptable", "no use", "not this", "something else", "foolish",
-                          "stupid", "you are stupid", "this is not what i wanted", "no this is wrong"]
-    q = [x.lower() for x in UNSATISFIED_INPUTS]
-
-    sd = ["Thanks", "Welcome"]
-    d = [x.lower() for x in sd]
-
-    am = ["OK"]
-    c = [x.lower() for x in am]
 
     t_usr = tfv.transform([cleanup(usr.strip().lower())])
     class_ = le.inverse_transform(model.predict(t_usr))
@@ -163,47 +152,20 @@ def get_response2(usr):
     ind = cos_sims.index(max(cos_sims))
     max_similarity = max(cos_sims)
 
-    similarity_threshold = 0.4  # Adjust the threshold as per your requirement
+    similarity_threshold = 0.4
 
-    if usr.lower() in a:
-        # Speak the input string
-        # engine.say(usr)
-        # engine.runAndWait()
-        return ""
+    if max_similarity >= similarity_threshold:
+        inds = get_max5(cos_sims)
 
-    if usr.lower() in q:
-        # Speak the input string
-        # engine.say(usr)
-        # engine.runAndWait()
-        return "Please contact SSFB customer care for support 1800 202 5333"
+        questions = [
+            data['Question'][questionset.index[ind]] for ind in inds
+        ]
 
-    if usr.lower() in c:
-        # Speak the input string
-        # engine.say(usr)
-        engine.runAndWait()
-        return "Cool! \U0001F604"
+        suggested_questions = "\n".join(questions)
 
-    if usr.lower() in d:
-        # Speak the input string
-        # engine.say(usr)
-        # engine.runAndWait()
-        return "\U0001F44D"
+        return  "Suggested Questions\n{}".format(suggested_questions)
 
-    if max_similarity < similarity_threshold:
-        if "how are you" in usr.lower():
-            # Speak the input string
-            # engine.say(usr)
-            # engine.runAndWait()
-            return ""
-        elif "what are you doing" in usr.lower():
-            # Speak the input string
-            # engine.say(usr)
-            engine.runAndWait()
-            return "How may I help you?"
-        else:
-            # Speak the input string
-            # engine.say(usr)
-            # engine.runAndWait()
-            return "I'm not able to solve this question at the moment. You can call customer support at 1800 202 5333 \U0001F615"
 
     return ""
+
+
