@@ -29,8 +29,11 @@ function chat_add_message(message, isUser) {
         html += '<div class="chat_bubble' + class_suffix + '">';
         html += '<div class="chat_triangle' + class_suffix + '"></div>';
 
-        for (var i = 0; i < questions.length; i++) {
+        for (var i = 1; i < questions.length; i++) {
             var question = questions[i];
+            if (i === 1) {
+                html += '<div class="suggested_questions_title">Suggested Questions</div>';
+            }
             html += '<button class="suggested_question" onclick="sendSuggestedQuestion(\'' + question + '\')">' + question + '</button>';
         }
 
